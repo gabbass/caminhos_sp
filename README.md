@@ -1,6 +1,9 @@
 # caminhos_sp
 Pipeline de dados para padronizar insumos de transporte.
 
+## Requisitos
+- pandas >= 1.1 (recomendado).
+
 ## Input obrigatório (padrão)
 - `data_raw/planilhas_CLASSIFICADAS_v5_4_rev3.zip` (planilhas classificadas por dimensão).
 
