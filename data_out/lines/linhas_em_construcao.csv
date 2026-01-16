@@ -1,0 +1,13 @@
+linha_id,linha,sistema,subsistema,operador,fase,etapa,status,qtde_vias,qtde_estacoes,comprimento_km,origem_aba,cidade
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Propostas - Subsistema Leve,Propostas - Subsistema Leve,Fase I - Extensão para Pq. Dom Pedro II,Etapa Única,em_construcao,2,15,15.20473015892093,dados,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Propostas - Subsistema Leve,Propostas - Subsistema Leve,Fase I - Extensão para Vila Yara,Etapa Única,em_construcao,2,5,6.412547019173005,dados,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Propostas - Subsistema Leve,Propostas - Subsistema Leve,Fase II - Ramal para Alvarenga,Etapa Única,em_construcao,2,11,16.27417098653093,dados,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Propostas - Subsistema Leve,Propostas - Subsistema Leve,Fase II - Ramal para Giovani Gronchi,Etapa Única,em_construcao,2,4,3.901153364065354,dados,São Paulo
+linha_06_laranja,Linha 06 - Laranja,Sistema Metropolitano,Propostas - Subsistema secundário,Propostas - Subsistema secundário,Fase I - Extensão até Vila Industrial ❸,Etapa Única,em_construcao,3,8,9.60923768126869,dados,São Paulo
+linha_06_laranja,Linha 06 - Laranja,Sistema Metropolitano,Propostas - Subsistema secundário,Propostas - Subsistema secundário,Fase II - Extensão até Sonia Maria ❸,Etapa Única,em_construcao,3,6,7.84573440038259,dados,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Propostas - Subsistema Leve,Propostas - Subsistema Leve,Fase I - Extensão para Pq. Dom Pedro II,Etapa Única,em_construcao,2,15,15.20473015892093,metropolitano,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Propostas - Subsistema Leve,Propostas - Subsistema Leve,Fase I - Extensão para Vila Yara,Etapa Única,em_construcao,2,5,6.412547019173005,metropolitano,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Propostas - Subsistema Leve,Propostas - Subsistema Leve,Fase II - Ramal para Alvarenga,Etapa Única,em_construcao,2,11,16.27417098653093,metropolitano,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Propostas - Subsistema Leve,Propostas - Subsistema Leve,Fase II - Ramal para Giovani Gronchi,Etapa Única,em_construcao,2,4,3.901153364065354,metropolitano,São Paulo
+linha_06_laranja,Linha 06 - Laranja,Sistema Metropolitano,Propostas - Subsistema secundário,Propostas - Subsistema secundário,Fase I - Extensão até Vila Industrial ❸,Etapa Única,em_construcao,3,8,9.60923768126869,metropolitano,São Paulo
+linha_06_laranja,Linha 06 - Laranja,Sistema Metropolitano,Propostas - Subsistema secundário,Propostas - Subsistema secundário,Fase II - Extensão até Sonia Maria ❸,Etapa Única,em_construcao,3,6,7.84573440038259,metropolitano,São Paulo

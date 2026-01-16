@@ -1,0 +1,33 @@
+linha_id,linha,sistema,subsistema,operador,fase,etapa,status,qtde_vias,qtde_estacoes,comprimento_km,origem_aba,cidade
+linha_nel1_itaim_paulista_sao_mateus,Linha NEL1 - Itaim Paulista - São Mateus,Sistema Metropolitano,Propostas - Subsistema terciário,Propostas - Subsistema terciário,Fase I - Extensão até Cidade Tiradentes ❸,Etapa Única,desconhecido,3,7,10.01424623900209,dados,São Paulo
+linha_nel1_itaim_paulista_sao_mateus,Linha NEL1 - Itaim Paulista - São Mateus,Sistema Metropolitano,Propostas - Subsistema terciário,Propostas - Subsistema terciário,Fase II - Extensão até Guaianases ❸,Etapa Única,desconhecido,3,6,5.087073197827416,dados,São Paulo
+linha_nel1_itaim_paulista_sao_mateus,Linha NEL1 - Itaim Paulista - São Mateus,Sistema Metropolitano,Propostas - Subsistema terciário,Propostas - Subsistema terciário,Fase III - Extensão até Itaim Paulista ❸,Etapa Única,desconhecido,3,8,7.29543284626507,dados,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Propostas,Propostas,Aumento de vias em trecho da linha,Etapa Única,desconhecido,2,8,28.07301367218346,dados,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Propostas,Propostas,Fase I - Extensão para Carapicuíba,Etapa Única,desconhecido,2,1,6.261655319264312,dados,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Propostas,Propostas,Fase II - Extensão para Alphaville,Etapa Única,desconhecido,2,2,3.834707616314204,dados,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Propostas,Propostas,Fase III - Extensão para Santana de Parnaíba,Etapa Única,desconhecido,2,2,4.710284021798207,dados,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Propostas,Propostas,Extensão Sul,Etapa Única,desconhecido,2,10,13.86623795158944,dados,São Paulo
+linha_ne1_pirituba_santana_de_parnaiba,Linha NE1 - Pirituba - Santana de Parnaíba,Sistema Regional,Propostas,Propostas,Fase Única,Etapa Única,desconhecido,2,8,19.12374823242581,dados,São Paulo
+linha_neno1_taboao_carapicuiba,Linha NENO1 - Taboão - Carapicuíba,Sistema Regional,Propostas,Propostas,Fase Única,Etapa Única,desconhecido,2,24,45.98402599630841,dados,São Paulo
+linha_nese1_santo_andre_aruja,Linha NESE1 - Santo André - Arujá,Sistema Regional,Propostas,Propostas,Fase I - Trecho entre Santo André - Manoel Feio,Etapa Única,desconhecido,3,22,39.55563297330692,dados,São Paulo
+linha_nese1_santo_andre_aruja,Linha NESE1 - Santo André - Arujá,Sistema Regional,Propostas,Propostas,Fase II - Extensão para Arujá,Etapa Única,desconhecido,3,4,14.93815501569253,dados,São Paulo
+linha_nese1_santo_andre_aruja,Linha NESE1 - Santo André - Arujá,Sistema Regional,Propostas,Propostas,Fase III - Ramal para São Martinho,Etapa Única,desconhecido,2,8,12.85533162899739,dados,São Paulo
+linha_os1_barueri_grajau,Linha OS1 - Barueri - Grajaú,Sistema Regional,Propostas,Propostas,Fase I - até- Granja Viana,Etapa Única,desconhecido,2,6,11.63225910788908,dados,São Paulo
+linha_os1_barueri_grajau,Linha OS1 - Barueri - Grajaú,Sistema Regional,Propostas,Propostas,Fase II - até Jd. Ângela,Etapa Única,desconhecido,2,7,14.30579273838328,dados,São Paulo
+linha_os1_barueri_grajau,Linha OS1 - Barueri - Grajaú,Sistema Regional,Propostas,Propostas,Fase III- até Grajaú,Etapa Única,desconhecido,2,3,10.1741601021644,dados,São Paulo
+linha_nel1_itaim_paulista_sao_mateus,Linha NEL1 - Itaim Paulista - São Mateus,Sistema Metropolitano,Propostas - Subsistema terciário,Propostas - Subsistema terciário,Fase I - Extensão até Cidade Tiradentes ❸,Etapa Única,desconhecido,3,7,10.01424623900209,metropolitano,São Paulo
+linha_nel1_itaim_paulista_sao_mateus,Linha NEL1 - Itaim Paulista - São Mateus,Sistema Metropolitano,Propostas - Subsistema terciário,Propostas - Subsistema terciário,Fase II - Extensão até Guaianases ❸,Etapa Única,desconhecido,3,6,5.087073197827416,metropolitano,São Paulo
+linha_nel1_itaim_paulista_sao_mateus,Linha NEL1 - Itaim Paulista - São Mateus,Sistema Metropolitano,Propostas - Subsistema terciário,Propostas - Subsistema terciário,Fase III - Extensão até Itaim Paulista ❸,Etapa Única,desconhecido,3,8,7.29543284626507,metropolitano,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Propostas,Propostas,Aumento de vias em trecho da linha,Etapa Única,desconhecido,2,8,28.07301367218346,regional,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Propostas,Propostas,Fase I - Extensão para Carapicuíba,Etapa Única,desconhecido,2,1,6.261655319264312,regional,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Propostas,Propostas,Fase II - Extensão para Alphaville,Etapa Única,desconhecido,2,2,3.834707616314204,regional,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Propostas,Propostas,Fase III - Extensão para Santana de Parnaíba,Etapa Única,desconhecido,2,2,4.710284021798207,regional,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Propostas,Propostas,Extensão Sul,Etapa Única,desconhecido,2,10,13.86623795158944,regional,São Paulo
+linha_ne1_pirituba_santana_de_parnaiba,Linha NE1 - Pirituba - Santana de Parnaíba,Sistema Regional,Propostas,Propostas,Fase Única,Etapa Única,desconhecido,2,8,19.12374823242581,regional,São Paulo
+linha_neno1_taboao_carapicuiba,Linha NENO1 - Taboão - Carapicuíba,Sistema Regional,Propostas,Propostas,Fase Única,Etapa Única,desconhecido,2,24,45.98402599630841,regional,São Paulo
+linha_nese1_santo_andre_aruja,Linha NESE1 - Santo André - Arujá,Sistema Regional,Propostas,Propostas,Fase I - Trecho entre Santo André - Manoel Feio,Etapa Única,desconhecido,3,22,39.55563297330692,regional,São Paulo
+linha_nese1_santo_andre_aruja,Linha NESE1 - Santo André - Arujá,Sistema Regional,Propostas,Propostas,Fase II - Extensão para Arujá,Etapa Única,desconhecido,3,4,14.93815501569253,regional,São Paulo
+linha_nese1_santo_andre_aruja,Linha NESE1 - Santo André - Arujá,Sistema Regional,Propostas,Propostas,Fase III - Ramal para São Martinho,Etapa Única,desconhecido,2,8,12.85533162899739,regional,São Paulo
+linha_os1_barueri_grajau,Linha OS1 - Barueri - Grajaú,Sistema Regional,Propostas,Propostas,Fase I - até- Granja Viana,Etapa Única,desconhecido,2,6,11.63225910788908,regional,São Paulo
+linha_os1_barueri_grajau,Linha OS1 - Barueri - Grajaú,Sistema Regional,Propostas,Propostas,Fase II - até Jd. Ângela,Etapa Única,desconhecido,2,7,14.30579273838328,regional,São Paulo
+linha_os1_barueri_grajau,Linha OS1 - Barueri - Grajaú,Sistema Regional,Propostas,Propostas,Fase III- até Grajaú,Etapa Única,desconhecido,2,3,10.1741601021644,regional,São Paulo
