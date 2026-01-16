@@ -18,6 +18,8 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RAW = ROOT / "data_raw"
 DEFAULT_OUT = ROOT / "data_out"
+# CSVs exportados com encoding UTF-8 para consumo em pipelines sem perda de acentuação.
+CSV_ENCODING = "utf-8"
 
 NS = {"kml": "http://www.opengis.net/kml/2.2"}
 
@@ -107,6 +109,7 @@ def sanitize_text_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def write_csv(df: pd.DataFrame, path: Path) -> None:
+    """Grava CSVs com encoding UTF-8 (sem perda de acentuação)."""
     df = sanitize_text_columns(df)
     df.to_csv(
         path,
@@ -114,6 +117,7 @@ def write_csv(df: pd.DataFrame, path: Path) -> None:
         line_terminator="\n",
         quoting=csv.QUOTE_MINIMAL,
         escapechar="\\",
+        encoding=CSV_ENCODING,
     )
 
 
