@@ -46,6 +46,23 @@ STATUS_MAP = {
     "proposto": "proposto",
 }
 
+STATUS_LABELS = {
+    "existente": "existente",
+    "em_projeto": "em projeto",
+    "em_construcao": "em construção",
+    "proposto": "proposta",
+}
+
+STATUS_CANONICAL_ALIASES = {
+    "existente": "existente",
+    "em_projeto": "em_projeto",
+    "em projeto": "em_projeto",
+    "em_construcao": "em_construcao",
+    "em construcao": "em_construcao",
+    "em construção": "em_construcao",
+    "proposta": "proposto",
+    "proposto": "proposto",
+}
 
 def normalize_text(value: str) -> str:
     if value is None:
@@ -77,6 +94,26 @@ def infer_status(*values: str) -> str:
             return status
     return "desconhecido"
 
+
+def to_final_status(value: str) -> str:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        raise ValueError("Status desconhecido (valor ausente).")
+    normalized = normalize_text(value)
+    if not normalized:
+        raise ValueError("Status desconhecido (valor vazio).")
+    canonical = STATUS_CANONICAL_ALIASES.get(normalized, normalized)
+    if canonical not in STATUS_LABELS:
+        raise ValueError(f"Status desconhecido para revisão: {value!r}")
+    return STATUS_LABELS[canonical]
+
+
+def finalize_statuses(df: pd.DataFrame, context: str) -> pd.DataFrame:
+    df = df.copy()
+    try:
+        df["status"] = df["status"].apply(to_final_status)
+    except ValueError as exc:
+        raise ValueError(f"{context}: {exc}") from exc
+    return df
 
 def read_excel_sheets(path: Path, sheets: Iterable[str]) -> pd.DataFrame:
     frames = []
@@ -398,6 +435,7 @@ def polygons_to_wkt(polygons: list[PolygonRecord]) -> dict[str, str]:
 
 
 def export_by_status(df: pd.DataFrame, out_dir: Path, prefix: str) -> None:
+    df = finalize_statuses(df, f"export_by_status({prefix})")
     for status, group in df.groupby("status"):
         safe_status = to_snake(status)
         if not safe_status:
