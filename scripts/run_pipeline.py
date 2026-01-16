@@ -148,14 +148,24 @@ def sanitize_text_columns(df: pd.DataFrame) -> pd.DataFrame:
 def write_csv(df: pd.DataFrame, path: Path) -> None:
     """Grava CSVs com encoding UTF-8 (sem perda de acentuação)."""
     df = sanitize_text_columns(df)
-    df.to_csv(
-        path,
-        index=False,
-        line_terminator="\n",
-        quoting=csv.QUOTE_MINIMAL,
-        escapechar="\\",
-        encoding=CSV_ENCODING,
-    )
+    try:
+        df.to_csv(
+            path,
+            index=False,
+            line_terminator="\n",
+            quoting=csv.QUOTE_MINIMAL,
+            escapechar="\\",
+            encoding=CSV_ENCODING,
+        )
+    except TypeError:
+        df.to_csv(
+            path,
+            index=False,
+            lineterminator="\n",
+            quoting=csv.QUOTE_MINIMAL,
+            escapechar="\\",
+            encoding=CSV_ENCODING,
+        )
 
 
 def infer_status(*values: str) -> str:
