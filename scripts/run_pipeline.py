@@ -46,6 +46,23 @@ STATUS_MAP = {
     "proposto": "proposto",
 }
 
+STATUS_LABELS = {
+    "existente": "existente",
+    "em_projeto": "em projeto",
+    "em_construcao": "em construção",
+    "proposto": "proposta",
+}
+
+STATUS_CANONICAL_ALIASES = {
+    "existente": "existente",
+    "em_projeto": "em_projeto",
+    "em projeto": "em_projeto",
+    "em_construcao": "em_construcao",
+    "em construcao": "em_construcao",
+    "em construção": "em_construcao",
+    "proposta": "proposto",
+    "proposto": "proposto",
+}
 
 def normalize_text(value: str) -> str:
     if value is None:
@@ -78,6 +95,26 @@ def infer_status(*values: str) -> str:
     return "desconhecido"
 
 
+def to_final_status(value: str) -> str:
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        raise ValueError("Status desconhecido (valor ausente).")
+    normalized = normalize_text(value)
+    if not normalized:
+        raise ValueError("Status desconhecido (valor vazio).")
+    canonical = STATUS_CANONICAL_ALIASES.get(normalized, normalized)
+    if canonical not in STATUS_LABELS:
+        raise ValueError(f"Status desconhecido para revisão: {value!r}")
+    return STATUS_LABELS[canonical]
+
+
+def finalize_statuses(df: pd.DataFrame, context: str) -> pd.DataFrame:
+    df = df.copy()
+    try:
+        df["status"] = df["status"].apply(to_final_status)
+    except ValueError as exc:
+        raise ValueError(f"{context}: {exc}") from exc
+    return df
+
 def read_excel_sheets(path: Path, sheets: Iterable[str]) -> pd.DataFrame:
     frames = []
     for sheet in sheets:
@@ -95,25 +132,39 @@ def load_status_map(raw_dir: Path) -> pd.DataFrame:
     df["status_assumido"] = df["status_assumido"].astype(str)
     df["status_norm"] = df["status_assumido"].apply(infer_status)
     df["linha_norm"] = df["linha"].astype(str).map(to_snake)
+    df["sistema_norm"] = df["sistema"].astype(str).map(to_snake)
+    df["subsistema_norm"] = df["subsistema"].astype(str).map(to_snake)
     return df
 
 
-def apply_status_map(df: pd.DataFrame, status_map: pd.DataFrame) -> pd.DataFrame:
+def normalize_status_join_fields(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["linha_norm"] = df.get("linha", "").astype(str).map(to_snake)
+    df["sistema_norm"] = df.get("sistema", "").astype(str).map(to_snake)
+    df["subsistema_norm"] = df.get("subsistema", "").astype(str).map(to_snake)
+    return df
+
+
+def apply_status_map_with_fallback(
+    df: pd.DataFrame,
+    status_map: pd.DataFrame,
+    fallback_fields: list[str],
+) -> pd.DataFrame:
+    df = normalize_status_join_fields(df)
     merged = df.merge(
-        status_map[["linha_norm", "status_norm", "sistema", "subsistema"]],
+        status_map[["linha_norm", "sistema_norm", "subsistema_norm", "status_norm"]],
         how="left",
-        on=["linha_norm", "sistema", "subsistema"],
+        on=["linha_norm", "sistema_norm", "subsistema_norm"],
     )
     merged["status"] = merged["status_norm"].fillna(
-        merged.apply(
-            lambda row: infer_status(row.get("fase"), row.get("etapa"), row.get("linha")),
-            axis=1,
-        )
+        merged.apply(lambda row: infer_status(*(row.get(field) for field in fallback_fields)), axis=1)
     )
     merged = merged.drop(columns=["status_norm"], errors="ignore")
     return merged
+
+
+def apply_status_map(df: pd.DataFrame, status_map: pd.DataFrame) -> pd.DataFrame:
+    return apply_status_map_with_fallback(df, status_map, ["fase", "etapa", "linha"])
 
 
 def build_lines(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
@@ -151,9 +202,11 @@ def build_lines(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
 def build_stations(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
     path = raw_dir / "02_Estacoes_Plano_Corpus_Ducen_v5_4_ATUALIZADO_GERAL.xlsx"
     df = read_excel_sheets(path, ["Dados", "Metropolitano", "Regional"])
-    df["status"] = df.apply(
-        lambda row: infer_status(row.get("fase"), row.get("etapa"), row.get("nome_da_estacao")),
-        axis=1,
+    status_map = load_status_map(raw_dir)
+    df = apply_status_map_with_fallback(
+        df,
+        status_map,
+        ["fase", "etapa", "nome_da_estacao"],
     )
     df["estacao_id"] = df.get("nome_da_estacao_limpo", df.get("nome_da_estacao", "")).astype(str).map(to_snake)
     df["operador"] = df.get("subsistema", "").astype(str)
@@ -181,10 +234,8 @@ def build_stations(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
 def build_line_points(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
     path = raw_dir / "03_Coordenadas_Plano_Corpus_Ducen_v5_4_ATUALIZADO_GERAL.xlsx"
     df = read_excel_sheets(path, ["Dados", "Metropolitano", "Regional"])
-    df["status"] = df.apply(
-        lambda row: infer_status(row.get("fase"), row.get("etapa"), row.get("linha")),
-        axis=1,
-    )
+    status_map = load_status_map(raw_dir)
+    df = apply_status_map_with_fallback(df, status_map, ["fase", "etapa", "linha"])
     df["linha_id"] = df.get("linha", "").astype(str).map(to_snake)
     df["operador"] = df.get("subsistema", "").astype(str)
     df["cidade"] = "São Paulo"
@@ -398,6 +449,7 @@ def polygons_to_wkt(polygons: list[PolygonRecord]) -> dict[str, str]:
 
 
 def export_by_status(df: pd.DataFrame, out_dir: Path, prefix: str) -> None:
+    df = finalize_statuses(df, f"export_by_status({prefix})")
     for status, group in df.groupby("status"):
         safe_status = to_snake(status)
         if not safe_status:
