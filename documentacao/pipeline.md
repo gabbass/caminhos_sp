@@ -8,6 +8,21 @@ Este pipeline gera saídas padronizadas (CSV e GeoJSON) para uso em Looker, Powe
 - `pandas`
 - `openpyxl`
 
+## Input obrigatório
+O pipeline espera o arquivo compactado com as planilhas classificadas por dimensão em:
+`data_raw/planilhas_CLASSIFICADAS_v5_4_rev3.zip`.
+
+Este ZIP inclui os arquivos:
+- `01_Linhas_Plano_Corpus_Ducen_v5_4_CLASSIFICADO.xlsx`
+- `02_Estacoes_Plano_Corpus_Ducen_v5_4_CLASSIFICADO.xlsx`
+- `03_Coordenadas_Plano_Corpus_Ducen_v5_4_CLASSIFICADO.xlsx`
+- `OD2023_Distritos_Infra_Transporte.xlsx`
+- `Relacionamentos_Linhas_Demanda_AreaOperacional_CORES_1a9_TP_TS.xlsx`
+
+### Planilhas legadas (opcional)
+Para continuar usando as planilhas antigas (`*_ATUALIZADO_GERAL.xlsx`), execute o
+pipeline com a flag `--no-use-classified-zip`.
+
 ## Como executar (Windows PowerShell)
 ```powershell
 # Na raiz do repositório
