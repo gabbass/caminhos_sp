@@ -9,6 +9,7 @@ import re
 import unicodedata
 import zipfile
 from dataclasses import dataclass
+from io import BytesIO
 from pathlib import Path
 from typing import Iterable, Iterator
 import xml.etree.ElementTree as ET
@@ -18,6 +19,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RAW = ROOT / "data_raw"
 DEFAULT_OUT = ROOT / "data_out"
+DEFAULT_CLASSIFIED_ZIP = DEFAULT_RAW / "planilhas_CLASSIFICADAS_v5_4_rev3.zip"
 # CSVs exportados com encoding UTF-8 para consumo em pipelines sem perda de acentuação.
 CSV_ENCODING = "utf-8"
 
@@ -67,6 +69,41 @@ STATUS_CANONICAL_ALIASES = {
     "proposta": "proposto",
     "proposto": "proposto",
 }
+
+CLASSIFIED_LINE_SHEETS = [
+    "Dados",
+    "Metropolitano",
+    "Regional",
+    "Rodoviário",
+    "Suplementar",
+    "Complementar",
+]
+
+CLASSIFIED_STATION_SHEETS = [
+    "Dados",
+    "Metropolitano",
+    "Regional",
+]
+
+
+@dataclass
+class PipelineSources:
+    raw_dir: Path
+    classified_zip: Path | None = None
+
+    def read_excel_sheets(self, filename: str, sheets: Iterable[str]) -> pd.DataFrame:
+        if self.classified_zip:
+            return read_excel_sheets_from_zip(self.classified_zip, filename, sheets)
+        return read_excel_sheets_from_path(self.raw_dir / filename, sheets)
+
+    def read_excel_sheet(self, filename: str, sheet: str) -> pd.DataFrame:
+        if self.classified_zip:
+            return read_excel_from_zip(self.classified_zip, filename, sheet)
+        return pd.read_excel(self.raw_dir / filename, sheet_name=sheet)
+
+    def read_csv(self, filename: str) -> pd.DataFrame:
+        return pd.read_csv(self.raw_dir / filename, dtype=str)
+
 
 def normalize_text(value: str) -> str:
     if value is None:
@@ -149,19 +186,52 @@ def finalize_statuses(df: pd.DataFrame, context: str) -> pd.DataFrame:
         raise ValueError(f"{context}: {exc}") from exc
     return df
 
-def read_excel_sheets(path: Path, sheets: Iterable[str]) -> pd.DataFrame:
-    frames = []
-    for sheet in sheets:
-        df = pd.read_excel(path, sheet_name=sheet)
-        df = normalize_columns(df)
-        df["origem_aba"] = to_snake(sheet)
-        frames.append(df)
+def read_excel_sheets_from_path(path: Path, sheets: Iterable[str]) -> pd.DataFrame:
+    with pd.ExcelFile(path) as excel:
+        available = excel.sheet_names
+        selected = [sheet for sheet in sheets if sheet in available]
+        if not selected:
+            raise ValueError(f"Nenhuma aba esperada encontrada em {path.name}.")
+        frames = []
+        for sheet in selected:
+            df = excel.parse(sheet)
+            df = normalize_columns(df)
+            df["origem_aba"] = to_snake(sheet)
+            frames.append(df)
     return pd.concat(frames, ignore_index=True)
 
 
-def load_status_map(raw_dir: Path) -> pd.DataFrame:
-    status_path = raw_dir / "OD2023_Distritos_Infra_Transporte.xlsx"
-    df = pd.read_excel(status_path, sheet_name="Status_Linhas_Plano")
+def read_excel_from_zip(zip_path: Path, inner_name: str, sheet: str) -> pd.DataFrame:
+    with zipfile.ZipFile(zip_path) as zf:
+        data = zf.read(inner_name)
+    buffer = BytesIO(data)
+    return pd.read_excel(buffer, sheet_name=sheet)
+
+
+def read_excel_sheets_from_zip(
+    zip_path: Path,
+    inner_name: str,
+    sheets: Iterable[str],
+) -> pd.DataFrame:
+    with zipfile.ZipFile(zip_path) as zf:
+        data = zf.read(inner_name)
+    buffer = BytesIO(data)
+    with pd.ExcelFile(buffer) as excel:
+        available = excel.sheet_names
+        selected = [sheet for sheet in sheets if sheet in available]
+        if not selected:
+            raise ValueError(f"Nenhuma aba esperada encontrada em {inner_name}.")
+        frames = []
+        for sheet in selected:
+            df = excel.parse(sheet)
+            df = normalize_columns(df)
+            df["origem_aba"] = to_snake(sheet)
+            frames.append(df)
+    return pd.concat(frames, ignore_index=True)
+
+
+def load_status_map(sources: PipelineSources) -> pd.DataFrame:
+    df = sources.read_excel_sheet("OD2023_Distritos_Infra_Transporte.xlsx", "Status_Linhas_Plano")
     df = normalize_columns(df)
     df["status_assumido"] = df["status_assumido"].astype(str)
     df["status_norm"] = df["status_assumido"].apply(infer_status)
@@ -201,16 +271,18 @@ def apply_status_map(df: pd.DataFrame, status_map: pd.DataFrame) -> pd.DataFrame
     return apply_status_map_with_fallback(df, status_map, ["fase", "etapa", "linha"])
 
 
-def build_lines(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
-    path = raw_dir / "01_Propostas_Plano_Corpus_Ducen_v5_4_ATUALIZADO_GERAL.xlsx"
-    df = read_excel_sheets(path, ["Dados", "Metropolitano", "Regional"])
+def build_lines(sources: PipelineSources, use_status_map: bool) -> pd.DataFrame:
+    filename = "01_Linhas_Plano_Corpus_Ducen_v5_4_CLASSIFICADO.xlsx" if sources.classified_zip else "01_Propostas_Plano_Corpus_Ducen_v5_4_ATUALIZADO_GERAL.xlsx"
+    sheets = CLASSIFIED_LINE_SHEETS if sources.classified_zip else ["Dados", "Metropolitano", "Regional"]
+    df = sources.read_excel_sheets(filename, sheets)
     df = df.rename(columns={
         "quantidade_de_vias": "qtde_vias",
         "numero_de_estacoes": "qtde_estacoes",
         "comprimento_km": "comprimento_km",
     })
-    status_map = load_status_map(raw_dir)
-    df = apply_status_map(df, status_map)
+    if use_status_map:
+        status_map = load_status_map(sources)
+        df = apply_status_map(df, status_map)
     df["linha_id"] = df.get("linha_limpo", df.get("linha", "")).astype(str).map(to_snake)
     df["operador"] = df.get("subsistema", "").astype(str)
     df["cidade"] = "São Paulo"
@@ -233,15 +305,17 @@ def build_lines(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
     return df
 
 
-def build_stations(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
-    path = raw_dir / "02_Estacoes_Plano_Corpus_Ducen_v5_4_ATUALIZADO_GERAL.xlsx"
-    df = read_excel_sheets(path, ["Dados", "Metropolitano", "Regional"])
-    status_map = load_status_map(raw_dir)
-    df = apply_status_map_with_fallback(
-        df,
-        status_map,
-        ["fase", "etapa", "nome_da_estacao"],
-    )
+def build_stations(sources: PipelineSources, use_status_map: bool) -> pd.DataFrame:
+    filename = "02_Estacoes_Plano_Corpus_Ducen_v5_4_CLASSIFICADO.xlsx" if sources.classified_zip else "02_Estacoes_Plano_Corpus_Ducen_v5_4_ATUALIZADO_GERAL.xlsx"
+    sheets = CLASSIFIED_STATION_SHEETS if sources.classified_zip else ["Dados", "Metropolitano", "Regional"]
+    df = sources.read_excel_sheets(filename, sheets)
+    if use_status_map:
+        status_map = load_status_map(sources)
+        df = apply_status_map_with_fallback(
+            df,
+            status_map,
+            ["fase", "etapa", "nome_da_estacao"],
+        )
     df["estacao_id"] = df.get("nome_da_estacao_limpo", df.get("nome_da_estacao", "")).astype(str).map(to_snake)
     df["operador"] = df.get("subsistema", "").astype(str)
     df["cidade"] = "São Paulo"
@@ -265,11 +339,13 @@ def build_stations(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
     return df
 
 
-def build_line_points(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
-    path = raw_dir / "03_Coordenadas_Plano_Corpus_Ducen_v5_4_ATUALIZADO_GERAL.xlsx"
-    df = read_excel_sheets(path, ["Dados", "Metropolitano", "Regional"])
-    status_map = load_status_map(raw_dir)
-    df = apply_status_map_with_fallback(df, status_map, ["fase", "etapa", "linha"])
+def build_line_points(sources: PipelineSources, use_status_map: bool) -> pd.DataFrame:
+    filename = "03_Coordenadas_Plano_Corpus_Ducen_v5_4_CLASSIFICADO.xlsx" if sources.classified_zip else "03_Coordenadas_Plano_Corpus_Ducen_v5_4_ATUALIZADO_GERAL.xlsx"
+    sheets = CLASSIFIED_LINE_SHEETS if sources.classified_zip else ["Dados", "Metropolitano", "Regional"]
+    df = sources.read_excel_sheets(filename, sheets)
+    if use_status_map:
+        status_map = load_status_map(sources)
+        df = apply_status_map_with_fallback(df, status_map, ["fase", "etapa", "linha"])
     df["linha_id"] = df.get("linha", "").astype(str).map(to_snake)
     df["operador"] = df.get("subsistema", "").astype(str)
     df["cidade"] = "São Paulo"
@@ -436,17 +512,15 @@ def assign_stations_to_line_points(
     return stations, line_points
 
 
-def read_gtfs_csv(path: Path) -> pd.DataFrame:
-    return pd.read_csv(path, dtype=str)
-
-
-def build_bus_lines(raw_dir: Path) -> pd.DataFrame:
-    routes = read_gtfs_csv(raw_dir / "routes.txt")
+def build_bus_lines(sources: PipelineSources) -> pd.DataFrame:
+    routes = sources.read_csv("routes.txt")
     routes = normalize_columns(routes)
     routes["route_id"] = routes["route_id"].astype(str)
 
-    dim_path = raw_dir / "Relacionamentos_Linhas_Demanda_AreaOperacional_CORES_1a9_TP_TS.xlsx"
-    area = pd.read_excel(dim_path, sheet_name="Dim_Area_Operacional")
+    area = sources.read_excel_sheet(
+        "Relacionamentos_Linhas_Demanda_AreaOperacional_CORES_1a9_TP_TS.xlsx",
+        "Dim_Area_Operacional",
+    )
     area = normalize_columns(area)
     area["route_id"] = area["route_id"].astype(str)
 
@@ -483,8 +557,8 @@ def is_terminal(name: str) -> bool:
     return bool(re.search(r"\bterm", name_norm))
 
 
-def build_terminals(raw_dir: Path) -> pd.DataFrame:
-    stops = read_gtfs_csv(raw_dir / "stops.txt")
+def build_terminals(sources: PipelineSources) -> pd.DataFrame:
+    stops = sources.read_csv("stops.txt")
     stops = normalize_columns(stops)
     terminals = stops[stops["stop_name"].map(is_terminal)].copy()
     terminals["terminal_id"] = terminals["stop_id"].astype(str)
@@ -574,12 +648,11 @@ def assign_districts(df: pd.DataFrame, polygons: list[PolygonRecord]) -> pd.Data
     return df
 
 
-def build_districts(raw_dir: Path) -> tuple[pd.DataFrame, list[PolygonRecord]]:
-    od_path = raw_dir / "OD2023_Distritos_Infra_Transporte.xlsx"
-    df = pd.read_excel(od_path, sheet_name="Distritos_OD2023")
+def build_districts(sources: PipelineSources) -> tuple[pd.DataFrame, list[PolygonRecord]]:
+    df = sources.read_excel_sheet("OD2023_Distritos_Infra_Transporte.xlsx", "Distritos_OD2023")
     df = normalize_columns(df)
     df["cidade"] = "São Paulo"
-    kmz_path = raw_dir / "Dados GEOSAMPA" / "LL_WGS84_KMZ_distrito.kmz"
+    kmz_path = sources.raw_dir / "Dados GEOSAMPA" / "LL_WGS84_KMZ_distrito.kmz"
     polygons = parse_kmz_districts(kmz_path)
     df["distrito_norm"] = df["nomedistrito"].astype(str).map(to_snake)
     return df, polygons
@@ -656,17 +729,34 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Pipeline de dados Caminhos SP")
     parser.add_argument("--raw-dir", type=Path, default=DEFAULT_RAW)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--classified-zip-path", type=Path, default=DEFAULT_CLASSIFIED_ZIP)
+    parser.add_argument(
+        "--use-classified-zip",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Usa as planilhas classificadas compactadas (planilhas_CLASSIFICADAS_v5_4_rev3.zip).",
+    )
     args = parser.parse_args()
 
     out_dirs = ensure_dirs(args.out_dir)
 
-    linhas = build_lines(args.raw_dir, args.out_dir)
-    estacoes = build_stations(args.raw_dir, args.out_dir)
-    line_points = build_line_points(args.raw_dir, args.out_dir)
+    classified_zip = None
+    if args.use_classified_zip:
+        if not args.classified_zip_path.exists():
+            raise FileNotFoundError(
+                f"Arquivo ZIP classificado não encontrado: {args.classified_zip_path}"
+            )
+        classified_zip = args.classified_zip_path
+    sources = PipelineSources(raw_dir=args.raw_dir, classified_zip=classified_zip)
+    use_status_map = not args.use_classified_zip
+
+    linhas = build_lines(sources, use_status_map)
+    estacoes = build_stations(sources, use_status_map)
+    line_points = build_line_points(sources, use_status_map)
     estacoes, line_points = assign_stations_to_line_points(estacoes, line_points)
-    bus_lines = build_bus_lines(args.raw_dir)
-    terminais = build_terminals(args.raw_dir)
-    distritos, polygons = build_districts(args.raw_dir)
+    bus_lines = build_bus_lines(sources)
+    terminais = build_terminals(sources)
+    distritos, polygons = build_districts(sources)
 
     if polygons:
         estacoes = assign_districts(estacoes, polygons)
