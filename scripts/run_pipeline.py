@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import re
 import unicodedata
 import zipfile
@@ -277,6 +278,7 @@ def build_line_points(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
         "fase",
         "etapa",
         "status",
+        "estacao_id",
         "placemark",
         "segmento",
         "ordem_ponto",
@@ -287,6 +289,147 @@ def build_line_points(raw_dir: Path, out_dir: Path) -> pd.DataFrame:
     ]
     df = df[[col for col in columns if col in df.columns]]
     return df
+
+
+def haversine_distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    radius = 6371000
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+    a = (
+        math.sin(delta_phi / 2) ** 2
+        + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
+    )
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return radius * c
+
+
+def canonicalize_status(value: str) -> str:
+    try:
+        return to_final_status(value)
+    except ValueError:
+        return STATUS_LABELS["proposto"]
+
+
+def build_spatial_index(
+    records: list[dict[str, float]],
+    cell_size_deg: float,
+) -> dict[tuple[int, int], list[int]]:
+    index: dict[tuple[int, int], list[int]] = {}
+    for idx, record in enumerate(records):
+        cell = (
+            int(record["latitude"] // cell_size_deg),
+            int(record["longitude"] // cell_size_deg),
+        )
+        index.setdefault(cell, []).append(idx)
+    return index
+
+
+def add_record_to_index(
+    index: dict[tuple[int, int], list[int]],
+    record: dict[str, float],
+    cell_size_deg: float,
+    idx: int,
+) -> None:
+    cell = (
+        int(record["latitude"] // cell_size_deg),
+        int(record["longitude"] // cell_size_deg),
+    )
+    index.setdefault(cell, []).append(idx)
+
+
+def iter_neighbor_cells(cell: tuple[int, int]) -> Iterator[tuple[int, int]]:
+    base_x, base_y = cell
+    for dx in (-1, 0, 1):
+        for dy in (-1, 0, 1):
+            yield (base_x + dx, base_y + dy)
+
+
+def assign_stations_to_line_points(
+    stations: pd.DataFrame,
+    line_points: pd.DataFrame,
+    radius_m: float = 300,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    stations = stations.copy()
+    line_points = line_points.copy()
+    cell_size_deg = radius_m / 111_320
+
+    station_records: list[dict[str, float]] = []
+    station_ids: list[str] = []
+    for _, row in stations.iterrows():
+        lat = row.get("latitude")
+        lon = row.get("longitude")
+        if pd.isna(lat) or pd.isna(lon):
+            continue
+        station_records.append({"latitude": float(lat), "longitude": float(lon)})
+        station_ids.append(str(row.get("estacao_id")))
+
+    spatial_index = build_spatial_index(station_records, cell_size_deg)
+
+    aggregated_rows: list[dict[str, object]] = []
+    next_id = 1
+
+    for idx, row in line_points.iterrows():
+        lat = row.get("latitude")
+        lon = row.get("longitude")
+        if pd.isna(lat) or pd.isna(lon):
+            line_points.at[idx, "estacao_id"] = None
+            continue
+
+        lat = float(lat)
+        lon = float(lon)
+        cell = (int(lat // cell_size_deg), int(lon // cell_size_deg))
+        nearest_idx = None
+        nearest_dist = None
+        for neighbor in iter_neighbor_cells(cell):
+            for candidate_idx in spatial_index.get(neighbor, []):
+                candidate = station_records[candidate_idx]
+                dist = haversine_distance_m(
+                    lat,
+                    lon,
+                    candidate["latitude"],
+                    candidate["longitude"],
+                )
+                if dist <= radius_m and (nearest_dist is None or dist < nearest_dist):
+                    nearest_dist = dist
+                    nearest_idx = candidate_idx
+
+        if nearest_idx is None:
+            estacao_id = f"estacao_agregada_{next_id:04d}"
+            next_id += 1
+            status = canonicalize_status(row.get("status", ""))
+            aggregated_rows.append(
+                {
+                    "estacao_id": estacao_id,
+                    "nome_da_estacao": f"Estação agregada {next_id - 1}",
+                    "sistema": row.get("sistema"),
+                    "subsistema": row.get("subsistema"),
+                    "operador": row.get("operador"),
+                    "linha": row.get("linha"),
+                    "fase": row.get("fase"),
+                    "etapa": row.get("etapa"),
+                    "status": status,
+                    "servico_expresso": None,
+                    "latitude": lat,
+                    "longitude": lon,
+                    "origem_aba": row.get("origem_aba"),
+                    "cidade": row.get("cidade"),
+                }
+            )
+            station_records.append({"latitude": lat, "longitude": lon})
+            station_ids.append(estacao_id)
+            add_record_to_index(spatial_index, station_records[-1], cell_size_deg, len(station_records) - 1)
+            line_points.at[idx, "estacao_id"] = estacao_id
+            continue
+
+        line_points.at[idx, "estacao_id"] = station_ids[nearest_idx]
+
+    if aggregated_rows:
+        aggregated_df = pd.DataFrame(aggregated_rows)
+        stations = pd.concat([stations, aggregated_df], ignore_index=True)
+
+    return stations, line_points
 
 
 def read_gtfs_csv(path: Path) -> pd.DataFrame:
@@ -516,6 +659,7 @@ def main() -> None:
     linhas = build_lines(args.raw_dir, args.out_dir)
     estacoes = build_stations(args.raw_dir, args.out_dir)
     line_points = build_line_points(args.raw_dir, args.out_dir)
+    estacoes, line_points = assign_stations_to_line_points(estacoes, line_points)
     bus_lines = build_bus_lines(args.raw_dir)
     terminais = build_terminals(args.raw_dir)
     distritos, polygons = build_districts(args.raw_dir)
