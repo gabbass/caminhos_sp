@@ -1,0 +1,26 @@
+!table
+!version 300
+!charset WindowsLatin1
+
+Definition Table
+  Type NATIVE Charset "WindowsLatin1"
+  Fields 14
+    NumeroZona Integer Index 1 ;
+    NomeZona Char (60) ;
+    NumeroMunicipio Integer Index 2 ;
+    NomeMunicipio Char (60) ;
+    NumDistrito_Municipio Integer ;
+    NomeDistrito_Municipio Char (60) ;
+    Area_ha_2 Decimal (8, 2) ;
+    População Float ;
+    Empregos Float ;
+    Viagens Float ;
+    PresencialPercent Float ;
+    TeletrabalhoPercent Float ;
+    HibrifoPercent Float ;
+    Matriculas Float ;
+begin_metadata
+"\IsReadOnly" = "FALSE"
+"\MapInfo" = ""
+"\MapInfo\TableID" = "e31a3b7d-f2eb-4668-852d-f5cf3955bae3"
+end_metadata

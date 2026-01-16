@@ -1,0 +1,17 @@
+!table
+!version 300
+!charset WindowsLatin1
+
+Definition Table
+  Type NATIVE Charset "WindowsLatin1"
+  Fields 4
+    NumeroMunicipio Integer ;
+    NomeMunicipio Char (60) ;
+    CD_IBGE Integer ;
+    Area_ha Decimal (10, 2) ;
+begin_metadata
+"\MapInfo" = ""
+"\MapInfo\TableID" = "28529d5c-e363-4fd3-b845-c6a06dfee604"
+"\MapInfo\ParentTableID" = "96fc2294-8697-40b6-b36d-736fe1e6273a"
+"\IsReadOnly" = "FALSE"
+end_metadata
