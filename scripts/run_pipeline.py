@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 import unicodedata
@@ -85,6 +86,34 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df.columns = [to_snake(col) for col in df.columns]
     return df
+
+
+def sanitize_text_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Sanitiza colunas textuais substituindo \r e \n por espaço.
+
+    Política: mantém o conteúdo textual original, apenas removendo quebras de linha
+    internas para evitar linhas quebradas no CSV. Não altera colunas não textuais.
+    """
+    df = df.copy()
+    text_cols = df.select_dtypes(include=["object", "string"]).columns
+    for col in text_cols:
+        df[col] = (
+            df[col]
+            .astype("string")
+            .str.replace(r"[\r\n]+", " ", regex=True)
+        )
+    return df
+
+
+def write_csv(df: pd.DataFrame, path: Path) -> None:
+    df = sanitize_text_columns(df)
+    df.to_csv(
+        path,
+        index=False,
+        line_terminator="\n",
+        quoting=csv.QUOTE_MINIMAL,
+        escapechar="\\",
+    )
 
 
 def infer_status(*values: str) -> str:
@@ -455,7 +484,7 @@ def export_by_status(df: pd.DataFrame, out_dir: Path, prefix: str) -> None:
         if not safe_status:
             safe_status = "desconhecido"
         output_path = out_dir / f"{prefix}_{safe_status}.csv"
-        group.to_csv(output_path, index=False)
+        write_csv(group, output_path)
 
 
 def save_geojson(data: dict, path: Path) -> None:
@@ -501,11 +530,11 @@ def main() -> None:
     export_by_status(line_points, out_dirs["line_points"], "linha_pontos")
     export_by_status(terminais, out_dirs["terminals"], "terminais")
 
-    bus_lines.to_csv(out_dirs["bus"] / "linhas_onibus.csv", index=False)
+    write_csv(bus_lines, out_dirs["bus"] / "linhas_onibus.csv")
 
     wkt_map = polygons_to_wkt(polygons)
     distritos["geometria_wkt"] = distritos["nomedistrito"].map(wkt_map)
-    distritos.to_csv(out_dirs["districts"] / "distritos_od.csv", index=False)
+    write_csv(distritos, out_dirs["districts"] / "distritos_od.csv")
 
     if polygons:
         geojson = polygons_to_geojson(polygons)
