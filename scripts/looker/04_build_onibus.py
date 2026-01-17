@@ -95,7 +95,13 @@ def build_onibus(
 
     logger.info("Lendo demanda de ônibus de %s", candidate)
     frame = read_table(candidate)
-    frame = extract_columns(frame)
+    try:
+        frame = extract_columns(frame)
+    except ValueError as exc:
+        message = str(exc)
+        logger.warning(message)
+        report.warn(message)
+        return
     frame["id_linha_onibus"] = clean_identifier(frame["id_linha_onibus"])
     frame["passageiros_total"] = (
         coerce_numeric(frame["passageiros_total"]).fillna(0).astype(float)

@@ -129,7 +129,13 @@ def build_trilhos(
 
     logger.info("Lendo demanda de trilhos de %s", candidate)
     frame = read_table(candidate)
-    frame = extract_columns(frame)
+    try:
+        frame = extract_columns(frame)
+    except ValueError as exc:
+        message = str(exc)
+        logger.warning(message)
+        report.warn(message)
+        return
     frame["id_estacao"] = clean_identifier(frame["id_estacao"])
     frame["nm_estacao"] = frame["nm_estacao"].astype(str).str.strip()
     frame["embarques"] = coerce_numeric(frame["embarques"]).fillna(0).astype(float)
