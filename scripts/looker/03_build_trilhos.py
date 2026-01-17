@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 from typing import Iterable
 
@@ -74,20 +75,58 @@ def read_table_head(path: Path, nrows: int = 5) -> pd.DataFrame:
     return pd.read_csv(path, nrows=nrows)
 
 
-def has_required_columns(frame: pd.DataFrame) -> bool:
+def normalize_column_name(name: str | None) -> str | None:
+    if name is None:
+        return None
+    return re.sub(r"[^a-z0-9]+", "_", str(name).strip().lower()).strip("_")
+
+
+def has_required_columns(
+    frame: pd.DataFrame,
+    col_id_estacao: str | None = None,
+    col_nm_estacao: str | None = None,
+    col_embarques: str | None = None,
+) -> bool:
     frame = normalize_columns(frame)
     id_candidates = ["id_estacao", "codigo_estacao", "cod_estacao", "estacao_id", "id"]
     name_candidates = ["nm_estacao", "nome_estacao", "estacao", "nome"]
     embarques_candidates = ["embarques", "passageiros", "demanda", "qtd", "volume"]
-    id_col = next((col for col in id_candidates if col in frame.columns), None)
-    name_col = next((col for col in name_candidates if col in frame.columns), None)
-    embarques_col = next(
-        (col for col in embarques_candidates if col in frame.columns), None
+
+    id_override = normalize_column_name(col_id_estacao)
+    name_override = normalize_column_name(col_nm_estacao)
+    embarques_override = normalize_column_name(col_embarques)
+
+    if id_override is not None and id_override not in frame.columns:
+        return False
+    if name_override is not None and name_override not in frame.columns:
+        return False
+    if embarques_override is not None and embarques_override not in frame.columns:
+        return False
+
+    id_col = (
+        id_override
+        if id_override is not None
+        else next((col for col in id_candidates if col in frame.columns), None)
+    )
+    name_col = (
+        name_override
+        if name_override is not None
+        else next((col for col in name_candidates if col in frame.columns), None)
+    )
+    embarques_col = (
+        embarques_override
+        if embarques_override is not None
+        else next((col for col in embarques_candidates if col in frame.columns), None)
     )
     return id_col is not None and name_col is not None and embarques_col is not None
 
 
-def extract_columns(frame: pd.DataFrame) -> pd.DataFrame:
+def extract_columns(
+    frame: pd.DataFrame,
+    col_id_estacao: str | None = None,
+    col_nm_estacao: str | None = None,
+    col_embarques: str | None = None,
+) -> pd.DataFrame:
     frame = normalize_columns(frame)
     id_candidates = ["id_estacao", "codigo_estacao", "cod_estacao", "estacao_id", "id"]
     name_candidates = ["nm_estacao", "nome_estacao", "estacao", "nome"]
@@ -97,10 +136,31 @@ def extract_columns(frame: pd.DataFrame) -> pd.DataFrame:
     lon_candidates = ["lon", "longitude", "long"]
     embarques_candidates = ["embarques", "passageiros", "demanda", "qtd", "volume"]
 
-    id_col = next((col for col in id_candidates if col in frame.columns), None)
-    name_col = next((col for col in name_candidates if col in frame.columns), None)
-    embarques_col = next(
-        (col for col in embarques_candidates if col in frame.columns), None
+    id_override = normalize_column_name(col_id_estacao)
+    name_override = normalize_column_name(col_nm_estacao)
+    embarques_override = normalize_column_name(col_embarques)
+
+    if id_override is not None and id_override not in frame.columns:
+        raise ValueError(f"Coluna informada --col-id-estacao não encontrada: {col_id_estacao}.")
+    if name_override is not None and name_override not in frame.columns:
+        raise ValueError(f"Coluna informada --col-nm-estacao não encontrada: {col_nm_estacao}.")
+    if embarques_override is not None and embarques_override not in frame.columns:
+        raise ValueError(f"Coluna informada --col-embarques não encontrada: {col_embarques}.")
+
+    id_col = (
+        id_override
+        if id_override is not None
+        else next((col for col in id_candidates if col in frame.columns), None)
+    )
+    name_col = (
+        name_override
+        if name_override is not None
+        else next((col for col in name_candidates if col in frame.columns), None)
+    )
+    embarques_col = (
+        embarques_override
+        if embarques_override is not None
+        else next((col for col in embarques_candidates if col in frame.columns), None)
     )
 
     if id_col is None or name_col is None or embarques_col is None:
@@ -138,6 +198,9 @@ def build_trilhos(
     nearest_radius_m: float,
     report: BuildReport,
     sep: str = ",",
+    col_id_estacao: str | None = None,
+    col_nm_estacao: str | None = None,
+    col_embarques: str | None = None,
 ) -> None:
     logger = setup_logging()
     candidates = select_demanda_candidates(base_dir)
@@ -152,7 +215,7 @@ def build_trilhos(
     for candidate in candidates:
         logger.info("Validando colunas mínimas de %s", candidate)
         head = read_table_head(candidate)
-        if has_required_columns(head):
+        if has_required_columns(head, col_id_estacao, col_nm_estacao, col_embarques):
             selected_candidate = candidate
             break
         message = f"Candidato ignorado por falta de colunas mínimas: {candidate}"
@@ -168,7 +231,7 @@ def build_trilhos(
     logger.info("Lendo demanda de trilhos de %s", selected_candidate)
     frame = read_table(selected_candidate)
     try:
-        frame = extract_columns(frame)
+        frame = extract_columns(frame, col_id_estacao, col_nm_estacao, col_embarques)
     except ValueError as exc:
         message = str(exc)
         logger.warning(message)
@@ -290,6 +353,9 @@ def main() -> int:
     parser.add_argument("--out-dir", default="data_out/looker/trilhos")
     parser.add_argument("--nearest-radius-m", type=float, default=200)
     parser.add_argument("--sep", default=",")
+    parser.add_argument("--col-id-estacao")
+    parser.add_argument("--col-nm-estacao")
+    parser.add_argument("--col-embarques")
     args = parser.parse_args()
 
     report = BuildReport(generated_files=[], warnings=[])
@@ -299,6 +365,9 @@ def main() -> int:
         args.nearest_radius_m,
         report,
         args.sep,
+        args.col_id_estacao,
+        args.col_nm_estacao,
+        args.col_embarques,
     )
     return 0
 
