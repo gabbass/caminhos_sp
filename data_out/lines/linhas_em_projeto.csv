@@ -1,0 +1,35 @@
+linha_id,linha,sistema,subsistema,operador,fase,etapa,status,qtde_vias,qtde_estacoes,comprimento_km,origem_aba,cidade
+linha_03_vermelha,Linha 03 - Vermelha,Sistema Metropolitano,Em andamento - Subsistema primário,Em andamento - Subsistema primário,,,em projeto,,0,2.182484940281596,dados,São Paulo
+linha_05_lilas,Linha 05 - Lílas,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,Extensão Norte,,em projeto,,0,3.70105091588101,dados,São Paulo
+linha_05_lilas,Linha 05 - Lílas,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,Extensão Sul,,em projeto,,0,3.786575676797638,dados,São Paulo
+linha_16_violeta,Linha 16 - Violeta,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,36.29215738154665,dados,São Paulo
+linha_19_celeste,Linha 19 - Celeste,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,17.56643179206367,dados,São Paulo
+linha_20_rosa,Linha 20 - Rosa,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,30.95730139829837,dados,São Paulo
+linha_21_grafite_provisorio,Linha 21 - Grafite - Provisório,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,25.6307856157048,dados,São Paulo
+linha_22_marrom,Linha 22 - Marrom,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,28.60475881757223,dados,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,Extensão para o Centro,,em projeto,,0,12.04471796407059,dados,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,Extensão Leste,,em projeto,,0,11.24897004832186,dados,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,Extensão até Arujá,,em projeto,,0,10.21868921842949,dados,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,10.49195607594581,dados,São Paulo
+linha_14_onix,Linha 14 - Onix,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,47.56780210364922,dados,São Paulo
+linha_24_quartzo,Linha 24 - Quartzo,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,23.86051143747312,dados,São Paulo
+linha_25_topazio,Linha 25 - Topázio,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,37.17189286104924,dados,São Paulo
+linha_26_amentista,Linha 26 - Amentista,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,44.6220848281499,dados,São Paulo
+nan,,Sistemas Complementar,,nan,,,em projeto,,0,38.09638977555397,dados,São Paulo
+linha_03_vermelha,Linha 03 - Vermelha,Sistema Metropolitano,Em andamento - Subsistema primário,Em andamento - Subsistema primário,,,em projeto,,0,2.182484940281596,metropolitano,São Paulo
+linha_05_lilas,Linha 05 - Lílas,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,Extensão Norte,,em projeto,,0,3.70105091588101,metropolitano,São Paulo
+linha_05_lilas,Linha 05 - Lílas,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,Extensão Sul,,em projeto,,0,3.786575676797638,metropolitano,São Paulo
+linha_16_violeta,Linha 16 - Violeta,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,36.29215738154665,metropolitano,São Paulo
+linha_19_celeste,Linha 19 - Celeste,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,17.56643179206367,metropolitano,São Paulo
+linha_20_rosa,Linha 20 - Rosa,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,30.95730139829837,metropolitano,São Paulo
+linha_21_grafite_provisorio,Linha 21 - Grafite - Provisório,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,25.6307856157048,metropolitano,São Paulo
+linha_22_marrom,Linha 22 - Marrom,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em projeto,,0,28.60475881757223,metropolitano,São Paulo
+linha_09_esmeralda,Linha 09 - Esmeralda,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,Extensão para o Centro,,em projeto,,0,12.04471796407059,regional,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,Extensão Leste,,em projeto,,0,11.24897004832186,regional,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,Extensão até Arujá,,em projeto,,0,10.21868921842949,regional,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,10.49195607594581,regional,São Paulo
+linha_14_onix,Linha 14 - Onix,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,47.56780210364922,regional,São Paulo
+linha_24_quartzo,Linha 24 - Quartzo,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,23.86051143747312,regional,São Paulo
+linha_25_topazio,Linha 25 - Topázio,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,37.17189286104924,regional,São Paulo
+linha_26_amentista,Linha 26 - Amentista,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,em projeto,,0,44.6220848281499,regional,São Paulo
+nan,,Sistemas Complementar,,nan,,,em projeto,,0,38.09638977555397,complementar,São Paulo

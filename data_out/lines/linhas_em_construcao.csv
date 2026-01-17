@@ -1,0 +1,19 @@
+linha_id,linha,sistema,subsistema,operador,fase,etapa,status,qtde_vias,qtde_estacoes,comprimento_km,origem_aba,cidade
+linha_15_prata,Linha 15 - Prata,Sistema Metropolitano,Em andamento -  Sistema leve,Em andamento -  Sistema leve,Extensão Leste,,em construção,,0,9.610887470371859,dados,São Paulo
+linha_15_prata,Linha 15 - Prata,Sistema Metropolitano,Em andamento -  Sistema leve,Em andamento -  Sistema leve,Extensão Oeste,,em construção,,0,1.713682030339416,dados,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Em andamento -  Sistema leve,Em andamento -  Sistema leve,,,em construção,,0,17.4897552634192,dados,São Paulo
+linha_02_verde,Linha 02 - Verde,Sistema Metropolitano,Em andamento - Subsistema primário,Em andamento - Subsistema primário,Extensão até Cerro Corá,,em construção,,0,1.297639198602744,dados,São Paulo
+linha_02_verde,Linha 02 - Verde,Sistema Metropolitano,Em andamento - Subsistema primário,Em andamento - Subsistema primário,Extensão até Guarulhos,,em construção,,0,5.836351757102628,dados,São Paulo
+linha_02_verde,Linha 02 - Verde,Sistema Metropolitano,Em andamento - Subsistema primário,Em andamento - Subsistema primário,Extensão até Penha,,em construção,,0,7.963693461312777,dados,São Paulo
+linha_04_amarela,Linha 04 - Amarela,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,Extensão Sudoeste,,em construção,,0,3.368161645195275,dados,São Paulo
+linha_06_laranja,Linha 06 - Laranja,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em construção,,0,21.25074524478969,dados,São Paulo
+nan,,Sistema Suplementar,,nan,,,em construção,,0,31.1994631782694,dados,São Paulo
+linha_15_prata,Linha 15 - Prata,Sistema Metropolitano,Em andamento -  Sistema leve,Em andamento -  Sistema leve,Extensão Leste,,em construção,,0,9.610887470371859,metropolitano,São Paulo
+linha_15_prata,Linha 15 - Prata,Sistema Metropolitano,Em andamento -  Sistema leve,Em andamento -  Sistema leve,Extensão Oeste,,em construção,,0,1.713682030339416,metropolitano,São Paulo
+linha_17_ouro,Linha 17 - Ouro,Sistema Metropolitano,Em andamento -  Sistema leve,Em andamento -  Sistema leve,,,em construção,,0,17.4897552634192,metropolitano,São Paulo
+linha_02_verde,Linha 02 - Verde,Sistema Metropolitano,Em andamento - Subsistema primário,Em andamento - Subsistema primário,Extensão até Cerro Corá,,em construção,,0,1.297639198602744,metropolitano,São Paulo
+linha_02_verde,Linha 02 - Verde,Sistema Metropolitano,Em andamento - Subsistema primário,Em andamento - Subsistema primário,Extensão até Guarulhos,,em construção,,0,5.836351757102628,metropolitano,São Paulo
+linha_02_verde,Linha 02 - Verde,Sistema Metropolitano,Em andamento - Subsistema primário,Em andamento - Subsistema primário,Extensão até Penha,,em construção,,0,7.963693461312777,metropolitano,São Paulo
+linha_04_amarela,Linha 04 - Amarela,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,Extensão Sudoeste,,em construção,,0,3.368161645195275,metropolitano,São Paulo
+linha_06_laranja,Linha 06 - Laranja,Sistema Metropolitano,Em andamento - Subsistema secundário,Em andamento - Subsistema secundário,,,em construção,,0,21.25074524478969,metropolitano,São Paulo
+nan,,Sistema Suplementar,,nan,,,em construção,,0,31.1994631782694,suplementar,São Paulo

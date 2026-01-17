@@ -1,0 +1,31 @@
+linha_id,linha,sistema,subsistema,operador,fase,etapa,status,qtde_vias,qtde_estacoes,comprimento_km,origem_aba,cidade
+linha_15_prata,Linha 15 - Prata,Sistema Metropolitano,Subsistema leve,Subsistema leve,,,existente,,0,14.58146957050284,dados,São Paulo
+linha_01_azul,Linha 01 - Azul,Sistema Metropolitano,Subsistema primário,Subsistema primário,,,existente,,0,20.29166600337808,dados,São Paulo
+linha_02_verde,Linha 02 - Verde,Sistema Metropolitano,Subsistema primário,Subsistema primário,,,existente,,0,14.69863055956115,dados,São Paulo
+linha_03_vermelha,Linha 03 - Vermelha,Sistema Metropolitano,Subsistema primário,Subsistema primário,,,existente,,0,22.08827600651316,dados,São Paulo
+linha_04_amarela,Linha 04 - Amarela,Sistema Metropolitano,Subsistema secundário,Subsistema secundário,,,existente,,0,12.78923293035924,dados,São Paulo
+linha_05_lilas,Linha 05 - Lilás,Sistema Metropolitano,Subsistema secundário,Subsistema secundário,,,existente,,0,19.89321001883167,dados,São Paulo
+linha_10_turquesa,Linha 10 - Turquesa,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,37.20688605571738,dados,São Paulo
+linha_11_coral,Linha 11 - Coral,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,50.84837427881754,dados,São Paulo
+linha_12_safira,Linha 12 - Safira,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,38.82676258231725,dados,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,14.86249614681165,dados,São Paulo
+linha_7_rubi,Linha 7 - Rubi,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,60.49226278995221,dados,São Paulo
+linha_8_diamante,Linha 8 - Diamante,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,41.63020532740599,dados,São Paulo
+linha_9_esmeralda,Linha 9 - Esmeralda,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,38.92607720407964,dados,São Paulo
+nan,,Sistema Suplementar,Subsistema Suplementar SPTrans,Subsistema Suplementar SPTrans,,,existente,,0,22.3073919300802,dados,São Paulo
+nan,,Sistemas Complementar,Subsistema complementar ARTESP,Subsistema complementar ARTESP,,,existente,,0,84.79690512659997,dados,São Paulo
+linha_15_prata,Linha 15 - Prata,Sistema Metropolitano,Subsistema leve,Subsistema leve,,,existente,,0,14.58146957050284,metropolitano,São Paulo
+linha_01_azul,Linha 01 - Azul,Sistema Metropolitano,Subsistema primário,Subsistema primário,,,existente,,0,20.29166600337808,metropolitano,São Paulo
+linha_02_verde,Linha 02 - Verde,Sistema Metropolitano,Subsistema primário,Subsistema primário,,,existente,,0,14.69863055956115,metropolitano,São Paulo
+linha_03_vermelha,Linha 03 - Vermelha,Sistema Metropolitano,Subsistema primário,Subsistema primário,,,existente,,0,22.08827600651316,metropolitano,São Paulo
+linha_04_amarela,Linha 04 - Amarela,Sistema Metropolitano,Subsistema secundário,Subsistema secundário,,,existente,,0,12.78923293035924,metropolitano,São Paulo
+linha_05_lilas,Linha 05 - Lilás,Sistema Metropolitano,Subsistema secundário,Subsistema secundário,,,existente,,0,19.89321001883167,metropolitano,São Paulo
+linha_10_turquesa,Linha 10 - Turquesa,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,37.20688605571738,regional,São Paulo
+linha_11_coral,Linha 11 - Coral,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,50.84837427881754,regional,São Paulo
+linha_12_safira,Linha 12 - Safira,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,38.82676258231725,regional,São Paulo
+linha_13_jade,Linha 13 - Jade,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,14.86249614681165,regional,São Paulo
+linha_7_rubi,Linha 7 - Rubi,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,60.49226278995221,regional,São Paulo
+linha_8_diamante,Linha 8 - Diamante,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,41.63020532740599,regional,São Paulo
+linha_9_esmeralda,Linha 9 - Esmeralda,Sistema Regional,Subsistema Suburbano,Subsistema Suburbano,,,existente,,0,38.92607720407964,regional,São Paulo
+nan,,Sistema Suplementar,Subsistema Suplementar SPTrans,Subsistema Suplementar SPTrans,,,existente,,0,22.3073919300802,suplementar,São Paulo
+nan,,Sistemas Complementar,Subsistema complementar ARTESP,Subsistema complementar ARTESP,,,existente,,0,84.79690512659997,complementar,São Paulo
