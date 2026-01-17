@@ -30,7 +30,7 @@ def score_candidate(path: Path, keywords: Iterable[str]) -> int:
     return sum(1 for kw in keywords if kw in name)
 
 
-def select_demanda_candidate(base_dir: Path) -> Path | None:
+def select_demanda_candidates(base_dir: Path) -> list[Path]:
     keywords = ["demanda", "estacao", "embarque", "mes", "trilho", "metro", "cptm"]
     extensions = ["csv", "xlsx", "xls", "parquet"]
     candidates = find_candidate_files(base_dir, keywords=["demanda"], extensions=extensions)
@@ -39,9 +39,8 @@ def select_demanda_candidate(base_dir: Path) -> Path | None:
     if not candidates:
         candidates = find_candidate_files(base_dir, keywords=keywords, extensions=extensions)
     if not candidates:
-        return None
-    ranked = sorted(candidates, key=lambda path: score_candidate(path, keywords), reverse=True)
-    return ranked[0]
+        return []
+    return sorted(candidates, key=lambda path: score_candidate(path, keywords), reverse=True)
 
 
 def select_geo_candidate(base_dir: Path) -> Path | None:
@@ -65,6 +64,27 @@ def read_table(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".parquet":
         return pd.read_parquet(path)
     return pd.read_csv(path)
+
+
+def read_table_head(path: Path, nrows: int = 5) -> pd.DataFrame:
+    if path.suffix.lower() in {".xlsx", ".xls"}:
+        return pd.read_excel(path, nrows=nrows)
+    if path.suffix.lower() == ".parquet":
+        return pd.read_parquet(path).head(nrows)
+    return pd.read_csv(path, nrows=nrows)
+
+
+def has_required_columns(frame: pd.DataFrame) -> bool:
+    frame = normalize_columns(frame)
+    id_candidates = ["id_estacao", "codigo_estacao", "cod_estacao", "estacao_id", "id"]
+    name_candidates = ["nm_estacao", "nome_estacao", "estacao", "nome"]
+    embarques_candidates = ["embarques", "passageiros", "demanda", "qtd", "volume"]
+    id_col = next((col for col in id_candidates if col in frame.columns), None)
+    name_col = next((col for col in name_candidates if col in frame.columns), None)
+    embarques_col = next(
+        (col for col in embarques_candidates if col in frame.columns), None
+    )
+    return id_col is not None and name_col is not None and embarques_col is not None
 
 
 def extract_columns(frame: pd.DataFrame) -> pd.DataFrame:
@@ -120,15 +140,33 @@ def build_trilhos(
     sep: str = ",",
 ) -> None:
     logger = setup_logging()
-    candidate = select_demanda_candidate(base_dir)
-    if candidate is None:
+    candidates = select_demanda_candidates(base_dir)
+    if not candidates:
         message = "Insumo de demanda de trilhos não encontrado."
         logger.warning(message)
         report.warn(message)
         return
 
-    logger.info("Lendo demanda de trilhos de %s", candidate)
-    frame = read_table(candidate)
+    frame = None
+    selected_candidate = None
+    for candidate in candidates:
+        logger.info("Validando colunas mínimas de %s", candidate)
+        head = read_table_head(candidate)
+        if has_required_columns(head):
+            selected_candidate = candidate
+            break
+        message = f"Candidato ignorado por falta de colunas mínimas: {candidate}"
+        logger.warning(message)
+        report.warn(message)
+
+    if selected_candidate is None:
+        message = "Nenhum candidato válido encontrado para demanda de trilhos."
+        logger.warning(message)
+        report.warn(message)
+        return
+
+    logger.info("Lendo demanda de trilhos de %s", selected_candidate)
+    frame = read_table(selected_candidate)
     try:
         frame = extract_columns(frame)
     except ValueError as exc:
