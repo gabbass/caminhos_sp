@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 from typing import Iterable
 
@@ -55,18 +56,47 @@ def read_table_head(path: Path, nrows: int = 5) -> pd.DataFrame:
     return pd.read_csv(path, nrows=nrows)
 
 
-def has_required_columns(frame: pd.DataFrame) -> bool:
+def normalize_column_name(name: str | None) -> str | None:
+    if name is None:
+        return None
+    return re.sub(r"[^a-z0-9]+", "_", str(name).strip().lower()).strip("_")
+
+
+def has_required_columns(
+    frame: pd.DataFrame,
+    col_id_linha_onibus: str | None = None,
+    col_passageiros_total: str | None = None,
+) -> bool:
     frame = normalize_columns(frame)
     id_candidates = ["id_linha_onibus", "id_linha", "linha_id", "linha"]
     passageiros_candidates = ["passageiros", "demanda", "qtd_passageiros", "volume"]
-    id_col = next((col for col in id_candidates if col in frame.columns), None)
-    passageiros_col = next(
-        (col for col in passageiros_candidates if col in frame.columns), None
+
+    id_override = normalize_column_name(col_id_linha_onibus)
+    passageiros_override = normalize_column_name(col_passageiros_total)
+
+    if id_override is not None and id_override not in frame.columns:
+        return False
+    if passageiros_override is not None and passageiros_override not in frame.columns:
+        return False
+
+    id_col = (
+        id_override
+        if id_override is not None
+        else next((col for col in id_candidates if col in frame.columns), None)
+    )
+    passageiros_col = (
+        passageiros_override
+        if passageiros_override is not None
+        else next((col for col in passageiros_candidates if col in frame.columns), None)
     )
     return id_col is not None and passageiros_col is not None
 
 
-def extract_columns(frame: pd.DataFrame) -> pd.DataFrame:
+def extract_columns(
+    frame: pd.DataFrame,
+    col_id_linha_onibus: str | None = None,
+    col_passageiros_total: str | None = None,
+) -> pd.DataFrame:
     frame = normalize_columns(frame)
     id_candidates = ["id_linha_onibus", "id_linha", "linha_id", "linha"]
     name_candidates = ["nm_linha", "nome_linha"]
@@ -76,9 +106,29 @@ def extract_columns(frame: pd.DataFrame) -> pd.DataFrame:
     lote_candidates = ["lote", "area"]
     passageiros_candidates = ["passageiros", "demanda", "qtd_passageiros", "volume"]
 
-    id_col = next((col for col in id_candidates if col in frame.columns), None)
-    passageiros_col = next(
-        (col for col in passageiros_candidates if col in frame.columns), None
+    id_override = normalize_column_name(col_id_linha_onibus)
+    passageiros_override = normalize_column_name(col_passageiros_total)
+
+    if id_override is not None and id_override not in frame.columns:
+        raise ValueError(
+            "Coluna informada --col-id-linha-onibus não encontrada: "
+            f"{col_id_linha_onibus}."
+        )
+    if passageiros_override is not None and passageiros_override not in frame.columns:
+        raise ValueError(
+            "Coluna informada --col-passageiros-total não encontrada: "
+            f"{col_passageiros_total}."
+        )
+
+    id_col = (
+        id_override
+        if id_override is not None
+        else next((col for col in id_candidates if col in frame.columns), None)
+    )
+    passageiros_col = (
+        passageiros_override
+        if passageiros_override is not None
+        else next((col for col in passageiros_candidates if col in frame.columns), None)
     )
 
     if id_col is None or passageiros_col is None:
@@ -101,7 +151,12 @@ def extract_columns(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_onibus(
-    base_dir: Path, out_dir: Path, report: BuildReport, sep: str = ","
+    base_dir: Path,
+    out_dir: Path,
+    report: BuildReport,
+    sep: str = ",",
+    col_id_linha_onibus: str | None = None,
+    col_passageiros_total: str | None = None,
 ) -> None:
     logger = setup_logging()
     candidates = select_candidates(base_dir)
@@ -116,7 +171,7 @@ def build_onibus(
     for candidate in candidates:
         logger.info("Validando colunas mínimas de %s", candidate)
         head = read_table_head(candidate)
-        if has_required_columns(head):
+        if has_required_columns(head, col_id_linha_onibus, col_passageiros_total):
             selected_candidate = candidate
             break
         message = f"Candidato ignorado por falta de colunas mínimas: {candidate}"
@@ -132,7 +187,7 @@ def build_onibus(
     logger.info("Lendo demanda de ônibus de %s", selected_candidate)
     frame = read_table(selected_candidate)
     try:
-        frame = extract_columns(frame)
+        frame = extract_columns(frame, col_id_linha_onibus, col_passageiros_total)
     except ValueError as exc:
         message = str(exc)
         logger.warning(message)
@@ -184,10 +239,19 @@ def main() -> int:
     parser.add_argument("--base-dir", default=".")
     parser.add_argument("--out-dir", default="data_out/looker/onibus")
     parser.add_argument("--sep", default=",")
+    parser.add_argument("--col-id-linha-onibus")
+    parser.add_argument("--col-passageiros-total")
     args = parser.parse_args()
 
     report = BuildReport(generated_files=[], warnings=[])
-    build_onibus(Path(args.base_dir), Path(args.out_dir), report, args.sep)
+    build_onibus(
+        Path(args.base_dir),
+        Path(args.out_dir),
+        report,
+        args.sep,
+        args.col_id_linha_onibus,
+        args.col_passageiros_total,
+    )
     return 0
 
 
